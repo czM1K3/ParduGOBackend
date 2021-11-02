@@ -5,7 +5,7 @@ from database import insert_user, get_user
 import bcrypt
 
 
-def getuser():
+def get_user_id():
     if not("Authorization" in request.headers):
         abort(401, description="Missing header")
     raw_header = request.headers["Authorization"]
@@ -13,7 +13,7 @@ def getuser():
     if len(split_header) != 2:
         abort(401, description="Wrong header")
 
-    return "none"
+    return jwt.decode(split_header[1], "secret", algorithms="HS256")["id"]
 
 
 def login():

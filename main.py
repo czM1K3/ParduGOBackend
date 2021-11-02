@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import abort
 import auth
+import points
 from dotenv import load_dotenv
 
 app = Flask(__name__)
@@ -31,6 +32,15 @@ def login():
 def register():
     bearer = auth.register()
     return jsonify(token=bearer)
+
+@app.route("/api/point/create", methods=["post"])
+def create_point():
+    points.create()
+    return jsonify(success=True)
+
+@app.route("/api/point/get")
+def get_point():
+    return jsonify(points.points())
 
 
 @app.route("/api/get")
