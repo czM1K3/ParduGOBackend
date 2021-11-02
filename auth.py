@@ -45,6 +45,8 @@ def register():
         abort(400, description="Missing first name")
     if last_name is None:
         abort(400, description="Missing last name")
+    if get_user(email) is not None:
+        abort(400, description="Email already in use")
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
     insert_user(email, hashed_password.decode("utf-8"), first_name, last_name)
