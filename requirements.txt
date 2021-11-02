@@ -1,2 +1,6 @@
 flask
 pyjwt
+pymongo
+dnspython
+bcrypt
+python-dotenv

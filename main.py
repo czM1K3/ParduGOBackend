@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import abort
 import auth
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -39,4 +40,5 @@ def get():
 
 
 if __name__ == "__main__":
+    load_dotenv()
     app.run(debug=True)
