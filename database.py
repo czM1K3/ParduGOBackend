@@ -1,13 +1,18 @@
 from os import getenv
 from bson import ObjectId
 
+cache = None
 
 def get_database():
+	global cache
+	if cache is not None:
+		return cache
 	CONNECTION_STRING = getenv("MONGO")
 
 	from pymongo import MongoClient
 	client = MongoClient(CONNECTION_STRING)
-	return client["ParduGO"]
+	cache = client["ParduGO"]
+	return cache
 
 def insert_user(email, password, first_name, last_name):
 	db = get_database()
