@@ -1,11 +1,13 @@
 def is_integer(string):
 	try:
-		return int(string)
+		int(string)
+		return True
 	except ValueError:
-		return None
+		return False
 
 def is_float(string):
 	try:
-		return float(string)
+		float(string)
+		return True
 	except ValueError:
-		return None
+		return False
