@@ -14,9 +14,9 @@ def get_database():
 	cache = client["ParduGO"]
 	return cache
 
-def insert_user(email, password, first_name, last_name):
+def insert_user(email, password, nickname):
 	db = get_database()
-	db["users"].insert_one({"email": email, "password": password, "first_name": first_name, "last_name": last_name})
+	db["users"].insert_one({"email": email, "password": password, "nickname": nickname})
 
 def get_user(email):
 	db = get_database()
