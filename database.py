@@ -28,4 +28,4 @@ def create_point(user_id, name, description, latitude, longitude, type):
 
 def get_points(latitude, longitude, radius):
 	db = get_database()
-	return db["points"].find({"location": {"$near": {"$geometry": {"type": "Point", "coordinates": [float(longitude), float(latitude)]}, "$maxDistance": float(radius)}}})
+	return db["points"].aggregate([{ "$geoNear": { "near": { "type": "Point", "coordinates": [float(longitude), float(latitude)] }, "distanceField": "distance", "maxDistance": float(radius), "spherical": True }}, { "$lookup": { "from": "users", "localField": "user_id", "foreignField": "_id", "as": "user" }}])

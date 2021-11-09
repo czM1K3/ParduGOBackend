@@ -47,6 +47,6 @@ def points():
 
 	list = []
 	for x in points:
-		list.append({"name": x["name"], "description": x["description"], "longitude": x["location"]["coordinates"][0], "latitude": x["location"]["coordinates"][1], "type": x["type"]})
+		list.append({"name": x["name"], "description": x["description"], "longitude": x["location"]["coordinates"][0], "latitude": x["location"]["coordinates"][1], "type": x["type"], "user_nickname": x["user"][0]["nickname"]})
 
 	return list
