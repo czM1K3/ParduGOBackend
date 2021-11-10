@@ -5,9 +5,6 @@ go 1.17
 require (
 	github.com/graphql-go/graphql v0.8.0
 	github.com/graphql-go/handler v0.2.3
-)
-
-require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
