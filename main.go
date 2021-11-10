@@ -23,6 +23,11 @@ func fixString(s string) string {
 	return s[1 : len(s)-1]
 }
 
+type Claims struct {
+	ID string `json:"id"`
+	jwt.StandardClaims
+}
+
 type Point struct {
 	Id           string  `json:"_id"`
 	Description  string  `json:"description"`
@@ -35,6 +40,10 @@ type Point struct {
 
 func main() {
 	dbUrl := os.Getenv("MONGO")
+	jwtKey := []byte(os.Getenv("JWT_KEY"))
+	if len(jwtKey) == 0 {
+		jwtKey = []byte("2S!3!TSvVRKzwCSS")
+	}
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbUrl))
 	if err != nil {
@@ -204,9 +213,19 @@ func main() {
 						}
 						id := cur.InsertedID.(primitive.ObjectID).Hex()
 
-						token := jwt.EncodeSegment([]byte(id))
+						claims := &Claims{
+							ID:             id,
+							StandardClaims: jwt.StandardClaims{},
+						}
 
-						return token, nil
+						token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+						tokenString, err := token.SignedString(jwtKey)
+						if err != nil {
+							return nil, nil
+						}
+
+						return tokenString, nil
 					},
 				},
 				"login": &graphql.Field{
@@ -234,7 +253,6 @@ func main() {
 
 						cur, err := client.Database("ParduGO").Collection("users").Aggregate(ctx, arguments)
 						if err != nil {
-							fmt.Println(err)
 							return nil, nil
 						}
 						if !cur.Next(ctx) {
@@ -248,9 +266,19 @@ func main() {
 
 						id := cur.Current.Lookup("_id").ObjectID().Hex()
 
-						token := jwt.EncodeSegment([]byte(id))
+						claims := &Claims{
+							ID:             id,
+							StandardClaims: jwt.StandardClaims{},
+						}
 
-						return token, nil
+						token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+						tokenString, err := token.SignedString(jwtKey)
+						if err != nil {
+							return nil, nil
+						}
+
+						return tokenString, nil
 					},
 				},
 				"create_point": &graphql.Field{
@@ -284,13 +312,19 @@ func main() {
 						latitude, _ := strconv.ParseFloat(fmt.Sprintf("%v", p.Args["latitude"]), 64)
 						event_type := fmt.Sprintf("%v", p.Args["type"])
 
-						pass, err := jwt.DecodeSegment(token)
-						fmt.Println(string(pass))
+						claims := &Claims{}
+
+						tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+							return jwtKey, nil
+						})
 						if err != nil {
 							return false, nil
 						}
+						if !tkn.Valid {
+							return false, nil
+						}
 
-						objectId, _ := primitive.ObjectIDFromHex(string(pass))
+						objectId, _ := primitive.ObjectIDFromHex(string(claims.ID))
 
 						arguments := []interface{}{
 							bson.M{
