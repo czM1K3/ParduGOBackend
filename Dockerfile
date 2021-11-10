@@ -1,10 +1,20 @@
-FROM python:3.9
+FROM golang:1.16-alpine AS build
 
 WORKDIR /app
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
 COPY . .
 
-ENV FLASK_APP=main.py
+RUN go build -o ./pardugo ./main.go
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+FROM alpine:3.13 as prod
+
+WORKDIR /app
+
+COPY --from=build /app/pardugo ./pardugo
+
+CMD [ "./pardugo"]
